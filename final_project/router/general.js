@@ -12,32 +12,63 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  return res.status(200).json(books);
 });
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
- });
+public_users.get('/isbn/:isbn', function (req, res) {
+  const isbn = req.params.isbn;
+  const libro = books[isbn];
+
+  if (libro) {
+    return res.status(200).json(libro);
+  } else {
+    return res.status(404).json({ message: 'Libro no encontrado' });
+  }
+});
   
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/author/:author', function (req, res) {
+  const autor = req.params.author;
+  const resultado = {};
+
+  Object.keys(books).forEach(function(isbn) {
+    if (books[isbn].author === autor) {
+      resultado[isbn] = books[isbn];
+    }
+  });
+
+  if (Object.keys(resultado).length === 0) {
+    return res.status(404).json({ message: 'No se encontraron libros de ese autor' });
+  } else {
+    return res.status(200).json(resultado);scrollBy
+  }
 });
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/title/:title', function (req, res) {
+  const title = req.params.title;
+  const resultado = {};
+
+  Object.keys(books).forEach(function(isbn) {
+    if (books[isbn].title === title) {
+      resultado[isbn] = books[isbn];
+    }
+  });
+
+  if (Object.keys(resultado).length === 0) {
+    return res.status(404).json({ message: 'No se encontraron libros con ese título' });
+  } else {
+    return res.status(200).json(resultado);
+  }
 });
 
-//  Get book review
-public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/review/:isbn', function (req, res) {
+  const isbn = req.params.isbn;
+  const libro = books[isbn];
+
+  if (libro) {
+    return res.status(200).json(libro.reviews);
+  } else {
+    return res.status(404).json({ message: 'Libro no encontrado' });
+  }
 });
 
 module.exports.general = public_users;
