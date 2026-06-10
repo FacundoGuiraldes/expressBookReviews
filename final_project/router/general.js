@@ -7,102 +7,62 @@ const public_users = express.Router();
 
 public_users.post("/register", (req,res) => {
   const { username, password } = req.body;
-
   if (!username || !password) {
-    return res.status(400).json({ message: 'Usuario y contraseña son requeridos' });
+    return res.status(400).json({ message: 'Username and password are required' });
   }
-
   if (users.find(u => u.username === username)) {
-    return res.status(409).json({ message: 'El usuario ya existe' });
+    return res.status(409).json({ message: 'User already exists' });
   }
-
   users.push({ username, password });
-  return res.status(200).json({ message: 'Usuario registrado exitosamente' });
+  return res.status(200).json({ message: 'User successfully registered. Now you can login' });
 });
 
 public_users.get('/', async function (req, res) {
   try {
-    const allBooks = await new Promise((resolve, reject) => {
-      if (books) {
-        resolve(books);
-      } else {
-        reject('No se encontraron libros');
-      }
-    });
-    return res.status(200).json(allBooks);
+    const response = await axios.get('http://localhost:5001/');
+    return res.status(200).json(response.data);
   } catch(error) {
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: 'Error fetching books' });
   }
 });
 
 public_users.get('/isbn/:isbn', async function (req, res) {
   const isbn = req.params.isbn;
   try {
-    const libro = await new Promise((resolve, reject) => {
-      if (books[isbn]) {
-        resolve(books[isbn]);
-      } else {
-        reject('Libro no encontrado');
-      }
-    });
-    return res.status(200).json(libro);
+    const response = await axios.get(`http://localhost:5001/isbn/${isbn}`);
+    return res.status(200).json(response.data);
   } catch(error) {
-    return res.status(404).json({ message: error });
+    return res.status(404).json({ message: 'Book not found' });
   }
 });
 
 public_users.get('/author/:author', async function (req, res) {
   const autor = req.params.author;
   try {
-    const resultado = await new Promise((resolve, reject) => {
-      const libros = {};
-      Object.keys(books).forEach(function(isbn) {
-        if (books[isbn].author === autor) {
-          libros[isbn] = books[isbn];
-        }
-      });
-      if (Object.keys(libros).length > 0) {
-        resolve(libros);
-      } else {
-        reject('No se encontraron libros de ese autor');
-      }
-    });
-    return res.status(200).json(resultado);
+    const response = await axios.get(`http://localhost:5001/author/${encodeURIComponent(autor)}`);
+    return res.status(200).json(response.data);
   } catch(error) {
-    return res.status(404).json({ message: error });
+    return res.status(404).json({ message: 'No books found for this author' });
   }
 });
 
 public_users.get('/title/:title', async function (req, res) {
   const title = req.params.title;
   try {
-    const resultado = await new Promise((resolve, reject) => {
-      const libros = {};
-      Object.keys(books).forEach(function(isbn) {
-        if (books[isbn].title === title) {
-          libros[isbn] = books[isbn];
-        }
-      });
-      if (Object.keys(libros).length > 0) {
-        resolve(libros);
-      } else {
-        reject('No se encontraron libros con ese título');
-      }
-    });
-    return res.status(200).json(resultado);
+    const response = await axios.get(`http://localhost:5001/title/${encodeURIComponent(title)}`);
+    return res.status(200).json(response.data);
   } catch(error) {
-    return res.status(404).json({ message: error });
+    return res.status(404).json({ message: 'No books found for this title' });
   }
 });
 
 public_users.get('/review/:isbn', function (req, res) {
   const isbn = req.params.isbn;
   const libro = books[isbn];
-
   if (libro) {
     return res.status(200).json(libro.reviews);
   } else {
-    return res.status(404).json({ message: 'Libro no encontrado' });
+    return res.status(404).json({ message: 'Book not found' });
   }
 });
 
