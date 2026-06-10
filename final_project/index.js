@@ -19,6 +19,15 @@ app.use("/customer/auth/*", function auth(req, res, next){
       req.user = user;
       next();
     });
+  } else if (req.headers.authorization) {
+    const token = req.headers.authorization.split(' ')[1];
+    jwt.verify(token, "fingerprint_customer", (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: 'Token inválido' });
+      }
+      req.user = user;
+      next();
+    });
   } else {
     return res.status(401).json({ message: 'Por favor iniciá sesión' });
   }
